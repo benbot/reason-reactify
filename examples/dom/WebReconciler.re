@@ -24,11 +24,11 @@ module Reconciler = {
      Step 2: Define node type
    */
   type node =
-    | Div(Js.t(Dom_html.divElement))
-    | Span(Js.t(Dom_html.element))
-    | Image(Js.t(Dom_html.imageElement))
-    | Button(Js.t(Dom_html.buttonElement))
-    | Container(Js.t(Dom_html.element));
+    | Div(Js_of_ocaml.t(Dom_html.divElement))
+    | Span(Js_of_ocaml.t(Dom_html.element))
+    | Image(Js_of_ocaml.t(Dom_html.imageElement))
+    | Button(Js_of_ocaml.t(Dom_html.buttonElement))
+    | Container(Js_of_ocaml.t(Dom_html.element));
   let document = Dom_html.window##.document;
 
   /*
@@ -40,22 +40,22 @@ module Reconciler = {
       | View => Div(Dom_html.createDiv(document))
       | Text(s) =>
         let e = Dom_html.createSpan(document);
-        e##.innerHTML := Js.string(s);
+        e##.innerHTML := Js_of_ocaml.string(s);
         Span(e);
       | Image(p) =>
         let img = Dom_html.createImg(document);
-        img##.src := Js.string(p);
+        img##.src := Js_of_ocaml.string(p);
         Image(img);
       | Button(onPress, title) =>
         let button =
           Dom_html.createButton(~_type=Js.string("button"), document);
-        let t = Js.string(title);
+        let t = Js_of_ocaml.string(title);
         button##.title := t;
         button##.innerHTML := t;
         button##.onclick :=
           Dom_html.handler(_e => {
             onPress();
-            Js.bool(false);
+            Js_of_ocaml.bool(false);
           });
         Button(button);
       };
@@ -77,16 +77,16 @@ module Reconciler = {
       (node: node, _oldPrimitive: primitives, newPrimitive: primitives) =>
     switch (newPrimitive, node) {
     | (View, Div(_e)) => ()
-    | (Text(s), Span(e)) => e##.innerHTML := Js.string(s)
-    | (Image(src), Image(e)) => e##.src := Js.string(src)
+    | (Text(s), Span(e)) => e##.innerHTML := Js_of_ocaml.string(s)
+    | (Image(src), Image(e)) => e##.src := Js_of_ocaml.string(src)
     | (Button(onPress, title), Button(e)) =>
-      let t = Js.string(title);
+      let t = Js_of_ocaml.string(title);
       e##.title := t;
       e##.innerHTML := t;
       e##.onclick :=
         Dom_html.handler(_e => {
           onPress();
-          Js.bool(false);
+          Js_of_ocaml.bool(false);
         });
     | _ => raise(InvalidNodePrimitiveMatchInUpdateInstance)
     };
